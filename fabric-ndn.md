@@ -105,7 +105,7 @@ Give your slice a unique name. You can also set the FABRIC site at which you wan
 
 ```python
 SLICENAME=os.environ['FABRIC_BASTION_USERNAME'] + "-fabric-ndn"
-SITE="TACC"
+SITE="UCSD"
 ```
 :::
 
@@ -141,5 +141,31 @@ if fablib.get_slice(SLICENAME):
 :::
 
 
+::: {.cell .markdown}
+This section needs developing.  It appears as though Fabric has NVDIA ConnectX-5 
+and ConnectX-6 Ethernet adapters.  NDN-DPDK has been tested on the ConnectX-5 but at
+100 Gps rate... So far I've only been able to reserve the basic NIC on Fabric.
+
+Here's an image of what has been tested with DPDK:
+![tested](./images/dpdk_tested.png)
+
+more can be read here: https://github.com/usnistgov/ndn-dpdk/blob/main/docs/hardware.md
+
+:::
+
+::: {.cell .code}
+```python
+slice = fablib.new_slice(name=SLICENAME)
 
 
+ndn1 = slice.add_node(name="ndn1", site=SITE, cores=6, ram=8, image='default_ubuntu_20')
+ndn2 = slice.add_node(name="ndn2", site=SITE, cores=6, ram=8, image='default_ubuntu_20')
+
+ndn1_interface = ndn1.add_component(model="NIC_Basic", name="if_ndn1").get_interfaces()[0]
+ndn2_interface = ndn2.add_component(model="NIC_Basic", name="if_ndn2").get_interfaces()[0]
+
+#ndn1_interface = ndn1.add_component(model="NIC_ConnectX_6", name="if_ndn1").get_interfaces()[0]
+#ndn2_interface = ndn2.add_component(model="NIC_ConnectX_6", name="if_ndn2").get_interfaces()[0]
+
+slice.submit()
+```
