@@ -39,11 +39,14 @@ We also need to create an SSH config file, with settings for accessing the basti
 import os
 
 # Specify your project ID
-os.environ['FABRIC_PROJECT_ID']='XXXXXXXXXXXX'
+import os
+
+# Specify your project ID
+os.environ['FABRIC_PROJECT_ID']='6ce270de-788d-4e07-8bae-3206860a6387'
 
 # Set your Bastion username and private key
-os.environ['FABRIC_BASTION_USERNAME']='ffund_0041777137'
-os.environ['FABRIC_BASTION_KEY_LOCATION']=os.environ['HOME']+'/work/fabric_config/fabric_bastion_key'
+os.environ['FABRIC_BASTION_USERNAME']='gsinkins_0000025334'
+os.environ['FABRIC_BASTION_KEY_LOCATION']=os.environ.get('HOME')+'/work/fabric_config/fabric_bastion_key'
 
 # You can leave the rest on the default settings
 # Set the keypair FABRIC will install in your slice. 
@@ -72,7 +75,7 @@ FABRIC_BASTION_HOST = os.environ['FABRIC_BASTION_HOST']
 
 chmod 600 $2 $3
 
-export FABRIC_BASTION_SSH_CONFIG_FILE=${HOME}/.ssh/config
+export FABRIC_BASTION_SSH_CONFIG_FILE=${HOME}/work/fabric_config/ssh_config
 
 echo "Host bastion-*.fabric-testbed.net"    >  ${FABRIC_BASTION_SSH_CONFIG_FILE}
 echo "     User $1"                         >> ${FABRIC_BASTION_SSH_CONFIG_FILE}
