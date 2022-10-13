@@ -111,12 +111,32 @@ SITE="TACC"
 Now we are ready to import fablib! And we'll use it to see what resources are available at FABRIC sites. :::
 
 ::: {.cell .code}
-
+```python
 import json
 import traceback
 from fabrictestbed_extensions.fablib.fablib import fablib
-
+```
 :::
 
 ::: {.cell .markdown}
+
+
+If you already have the resources for this experiment (for example: you ran this part of the notebook previously, and are now returning to pick off where you left off), you don't need to reserve resources again. If the following cell tells you that you already have resources, you can just skip to the part where you left off last.
+
+
+:::
+
+
+::: {.cell .code}
+
+```python
+if fablib.get_slice(SLICENAME):
+    print("You already have a slice named %s." % SLICENAME)
+    slice = fablib.get_slice(name=SLICENAME)
+    print(slice)
+```
+:::
+
+
+
 
