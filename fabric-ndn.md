@@ -68,9 +68,9 @@ FABRIC_BASTION_HOST = os.environ['FABRIC_BASTION_HOST']
 ::: {.cell .code}
 
 ```bash
-%%bash -s "$FABRIC_BASTION_USERNAME" "$FABRIC_BASTION_KEY_LOCATION"
+%%bash -s "$FABRIC_BASTION_USERNAME" "$FABRIC_BASTION_KEY_LOCATION" "$FABRIC_SLICE_PRIVATE_KEY_FILE"
 
-chmod 600 $2
+chmod 600 $2 $3
 
 export FABRIC_BASTION_SSH_CONFIG_FILE=${HOME}/.ssh/config
 
@@ -85,4 +85,37 @@ cat ${FABRIC_BASTION_SSH_CONFIG_FILE}
 :::
 
 
+::: {.cell .markdown} 
+
+### Reserve resources
+
+:::
+
 ::: {.cell .markdown}
+#TODO: Determine the best site, or choose random if all equal
+
+Give your slice a unique name. You can also set the FABRIC site at which you want to reserve resources in the cell below:
+
+:::
+
+::: {.cell .code}
+
+SLICENAME=os.environ['FABRIC_BASTION_USERNAME'] + "-fabric-ndn"
+SITE="TACC"
+
+:::
+
+::: {.cell .markdown}
+
+Now we are ready to import fablib! And we'll use it to see what resources are available at FABRIC sites. :::
+
+::: {.cell .code}
+
+import json
+import traceback
+from fabrictestbed_extensions.fablib.fablib import fablib
+
+:::
+
+::: {.cell .markdown}
+
