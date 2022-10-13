@@ -43,7 +43,7 @@ os.environ['FABRIC_PROJECT_ID']='XXXXXXXXXXXX'
 
 # Set your Bastion username and private key
 os.environ['FABRIC_BASTION_USERNAME']='ffund_0041777137'
-os.environ['FABRIC_BASTION_KEY_LOCATION']=os.environ['HOME']+'/work/bastion-notebook'
+os.environ['FABRIC_BASTION_KEY_LOCATION']=os.environ['HOME']+'/work/fabric_config/fabric_bastion_key'
 
 # You can leave the rest on the default settings
 # Set the keypair FABRIC will install in your slice. 
@@ -100,9 +100,10 @@ Give your slice a unique name. You can also set the FABRIC site at which you wan
 
 ::: {.cell .code}
 
+```python
 SLICENAME=os.environ['FABRIC_BASTION_USERNAME'] + "-fabric-ndn"
 SITE="TACC"
-
+```
 :::
 
 ::: {.cell .markdown}
