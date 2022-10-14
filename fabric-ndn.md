@@ -83,8 +83,6 @@ cat ${FABRIC_BASTION_SSH_CONFIG_FILE}
 
 ### Reserve resources
 
-:::
-
 ::: {.cell .markdown}
 #TODO: Determine the best site, or choose random if all equal
 
@@ -141,7 +139,7 @@ ConnectX-6 since it specifies 100Gbps.
 
 
 Here's an image of what has been tested with DPDK:
-![tested](./images/dpdk_tested.png)
+<img src="images/dpdk_tested.png" width="500">
 
 more can be read here: https://github.com/usnistgov/ndn-dpdk/blob/main/docs/hardware.md
 
@@ -153,6 +151,7 @@ For the nodes, I referenced the CPU and Memory section of the Hardware Guide.
 :::
 
 ::: {.cell .code}
+
 ```python
 slice = fablib.new_slice(name=SLICENAME)
 
@@ -160,11 +159,11 @@ slice = fablib.new_slice(name=SLICENAME)
 ndn1 = slice.add_node(name="ndn1", site=SITE, cores=6, ram=8, image='default_ubuntu_20')
 ndn2 = slice.add_node(name="ndn2", site=SITE, cores=6, ram=8, image='default_ubuntu_20')
 
-#ndn1_interface = ndn1.add_component(model="NIC_Basic", name="if_ndn1").get_interfaces()[0]
-#ndn2_interface = ndn2.add_component(model="NIC_Basic", name="if_ndn2").get_interfaces()[0]
+ndn1_interface = ndn1.add_component(model="NIC_Basic", name="interface1").get_interfaces()[0]
+ndn2_interface = ndn2.add_component(model="NIC_Basic", name="interface2").get_interfaces()[0]
 
-ndn1_interface = ndn1.add_component(model="NIC_ConnectX_6", name="ndn1_iface").get_interfaces()[0]
-ndn2_interface = ndn2.add_component(model="NIC_ConnectX_6", name="ndn2_iface").get_interfaces()[0]
+#ndn1_interface = ndn1.add_component(model="NIC_ConnectX_6", name="ndn1_iface").get_interfaces()[0]
+#ndn2_interface = ndn2.add_component(model="NIC_ConnectX_6", name="ndn2_iface").get_interfaces()[0]
 
 slice.submit()
 ```
