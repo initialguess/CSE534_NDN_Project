@@ -144,12 +144,20 @@ if fablib.get_slice(SLICENAME):
 ::: {.cell .markdown}
 This section needs developing.  It appears as though Fabric has NVDIA ConnectX-5 
 and ConnectX-6 Ethernet adapters.  NDN-DPDK has been tested on the ConnectX-5 but at
-100 Gps rate... So far I've only been able to reserve the basic NIC on Fabric.
+100 Gps rate...Fabric offers the ConnectX-5 at the 10 Gbps rate, so I've choosen the
+ConnectX-6 since it specifies 100Gbps.
+
+
 
 Here's an image of what has been tested with DPDK:
 ![tested](./images/dpdk_tested.png)
 
 more can be read here: https://github.com/usnistgov/ndn-dpdk/blob/main/docs/hardware.md
+
+For the nodes, I referenced the CPU and Memory section of the Hardware Guide.
+> The developers have tested NDN-DPDK on servers with one, two, and four NUMA sockets.
+
+> Default configuration of NDN-DPDK requires at least 6 CPU cores (total) and 8 GB hugepages memory (per NUMA socket). With a custom configuration, NDN-DPDK might work on 2 CPU cores and 2 GB memory, albeit at reduced performance; see performance tuning "lcore allocation" and "memory usage > insights" for some hints on how to do so.
 
 :::
 
@@ -161,11 +169,11 @@ slice = fablib.new_slice(name=SLICENAME)
 ndn1 = slice.add_node(name="ndn1", site=SITE, cores=6, ram=8, image='default_ubuntu_20')
 ndn2 = slice.add_node(name="ndn2", site=SITE, cores=6, ram=8, image='default_ubuntu_20')
 
-ndn1_interface = ndn1.add_component(model="NIC_Basic", name="if_ndn1").get_interfaces()[0]
-ndn2_interface = ndn2.add_component(model="NIC_Basic", name="if_ndn2").get_interfaces()[0]
+#ndn1_interface = ndn1.add_component(model="NIC_Basic", name="if_ndn1").get_interfaces()[0]
+#ndn2_interface = ndn2.add_component(model="NIC_Basic", name="if_ndn2").get_interfaces()[0]
 
-#ndn1_interface = ndn1.add_component(model="NIC_ConnectX_6", name="if_ndn1").get_interfaces()[0]
-#ndn2_interface = ndn2.add_component(model="NIC_ConnectX_6", name="if_ndn2").get_interfaces()[0]
+ndn1_interface = ndn1.add_component(model="NIC_ConnectX_6", name="if_ndn1").get_interfaces()[0]
+ndn2_interface = ndn2.add_component(model="NIC_ConnectX_6", name="if_ndn2").get_interfaces()[0]
 
 slice.submit()
 ```
