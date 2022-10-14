@@ -156,7 +156,7 @@ more can be read here: https://github.com/usnistgov/ndn-dpdk/blob/main/docs/hard
 
 For the nodes, I referenced the CPU and Memory section of the Hardware Guide.
 > The developers have tested NDN-DPDK on servers with one, two, and four NUMA sockets.
-
+>
 > Default configuration of NDN-DPDK requires at least 6 CPU cores (total) and 8 GB hugepages memory (per NUMA socket). With a custom configuration, NDN-DPDK might work on 2 CPU cores and 2 GB memory, albeit at reduced performance; see performance tuning "lcore allocation" and "memory usage > insights" for some hints on how to do so.
 
 :::
@@ -172,8 +172,8 @@ ndn2 = slice.add_node(name="ndn2", site=SITE, cores=6, ram=8, image='default_ubu
 #ndn1_interface = ndn1.add_component(model="NIC_Basic", name="if_ndn1").get_interfaces()[0]
 #ndn2_interface = ndn2.add_component(model="NIC_Basic", name="if_ndn2").get_interfaces()[0]
 
-ndn1_interface = ndn1.add_component(model="NIC_ConnectX_6", name="if_ndn1").get_interfaces()[0]
-ndn2_interface = ndn2.add_component(model="NIC_ConnectX_6", name="if_ndn2").get_interfaces()[0]
+ndn1_interface = ndn1.add_component(model="NIC_ConnectX_6", name="ndn1_iface").get_interfaces()[0]
+ndn2_interface = ndn2.add_component(model="NIC_ConnectX_6", name="ndn2_iface").get_interfaces()[0]
 
 slice.submit()
 ```
