@@ -27,7 +27,7 @@ As a first step, set up your personal variables.  Do this before attempting to r
 If you have set this up, move on to the following:
 :::
 
-## Specifying Your Details
+### Specifying Your Details
 Add your unique Fabric credentials that you just set up.
 
 ::: {.cell .code}
@@ -35,7 +35,7 @@ Add your unique Fabric credentials that you just set up.
 ```python
 import os
 
-# We need to import the python os library
+# Import the python os library
 import os
 
 # Specify your project ID
@@ -49,7 +49,7 @@ os.environ['FABRIC_BASTION_KEY_LOCATION']=os.environ.get('HOME')+'/work/fabric_c
 os.environ['FABRIC_SLICE_PRIVATE_KEY_FILE']=os.environ['HOME']+'/work/fabric_config/slice_key'
 os.environ['FABRIC_SLICE_PUBLIC_KEY_FILE']=os.environ['HOME']+'/work/fabric_config/slice_key.pub'
 
-# prepare to share these with Bash so we can write the SSH config file
+# Prepare to share these with Bash so we can write the SSH config file
 os.environ['FABRIC_BASTION_HOST'] = 'bastion-1.fabric-testbed.net'
 FABRIC_BASTION_USERNAME = os.environ['FABRIC_BASTION_USERNAME']
 FABRIC_BASTION_KEY_LOCATION = os.environ['FABRIC_BASTION_KEY_LOCATION']
@@ -58,7 +58,7 @@ FABRIC_BASTION_HOST = os.environ['FABRIC_BASTION_HOST']
 ```
 :::
 
-## Using the variables set above, you can now run the follwing bash commands
+### Using the variables set above, run the following bash commands
 ::: {.cell .code}
 
 ```bash
