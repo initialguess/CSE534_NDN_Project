@@ -58,7 +58,7 @@ FABRIC_BASTION_HOST = os.environ['FABRIC_BASTION_HOST']
 ```
 :::
 
-# Using the variables set above, you can now run the follwing bash commands
+## Using the variables set above, you can now run the follwing bash commands
 ::: {.cell .code}
 
 ```bash
@@ -102,7 +102,7 @@ SITE="UCSD"
 
 ::: {.cell .markdown}
 
-Now we are ready to import fablib! And we'll use it to see what resources are available at FABRIC sites. :::
+Now we are ready to import fablib! And we'll use it to see what resources are available at FABRIC sites.
 
 ::: {.cell .code}
 ```python
@@ -168,3 +168,4 @@ ndn2_interface = ndn2.add_component(model="NIC_ConnectX_6", name="ndn2_iface").g
 
 slice.submit()
 ```
+:::
