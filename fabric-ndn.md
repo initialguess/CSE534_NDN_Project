@@ -1,6 +1,6 @@
 ::: {.cell .markdown}
 
-#  Named Data Networking on Farbic
+#  Named Data Networking on Fabric
 
 This experiment explores using NDN Data Plane Development on Fabric.  The DPDK was developed at NIST and designed to work on commodity hardware...
 
