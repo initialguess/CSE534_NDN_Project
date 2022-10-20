@@ -158,13 +158,53 @@ slice = fablib.new_slice(name=SLICENAME)
 
 ndn1 = slice.add_node(name="ndn1", site=SITE, cores=6, ram=8, image='default_ubuntu_20')
 ndn2 = slice.add_node(name="ndn2", site=SITE, cores=6, ram=8, image='default_ubuntu_20')
+fwdr = slice.add_node(name="forwarder", site=SITE, cores=6, ram=8, image='default_ubuntu_20')
 
 ndn1_interface = ndn1.add_component(model="NIC_Basic", name="interface1").get_interfaces()[0]
 ndn2_interface = ndn2.add_component(model="NIC_Basic", name="interface2").get_interfaces()[0]
+fwdr_interface1 = fwdr.add_component(model="NIC_Basic", name="fwdr_interface1").get_interfaces()[0]
+fwdr_interface2 = fwdr.add_component(model="NIC_Basic", name="fwdr_interface2").get_interfaces()[0]
+
+net1 = slice.add_l2network(name='net1', type='L2Bridge', interfaces=[interface1, fwdr_interface1])
+net2 = slice.add_l2network(name='net2', type='L2Bridge', interfaces=[interface2, fwdr_interface2])
 
 #ndn1_interface = ndn1.add_component(model="NIC_ConnectX_6", name="ndn1_iface").get_interfaces()[0]
 #ndn2_interface = ndn2.add_component(model="NIC_ConnectX_6", name="ndn2_iface").get_interfaces()[0]
 
+
 slice.submit()
+```
+:::
+
+# Slice Status
+When the slice is ready, the Slice state will be listed as StableOK
+::: {.cell .code}
+
+```python
+print(f"{slice}")
+```
+:::
+
+## Get Login Details
+To get the log in details for each node, run the following:
+::: {.cell .code}
+
+```python
+for node in slice.get_nodes():
+    print(f"{node}")
+```
+:::
+
+## Gather ssh Details and Set Environment Variables
+
+# variables specific to this slice
+::: {.cell .code}
+
+```python
+NDN1_IP = str(slice.get_node("ndn1").get_management_ip())
+NDN1_USER =  str(slice.get_node("ndn1").get_username())
+NDN1_if_FWDR = slice.get_node("ndn1").get_interfaces()[0].get_os_interface()
+
+
 ```
 :::
