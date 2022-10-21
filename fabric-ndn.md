@@ -173,7 +173,7 @@ slice.submit()
 :::
 
 ::: {.cell .markdown}
-# Slice Status
+## Slice Status
 When the slice is ready, the Slice state will be listed as StableOK
 :::
 
@@ -184,8 +184,11 @@ print(f"{slice}")
 ```
 :::
 
+::: {.cell .markdown}
 ## Get Login Details
 To get the log in details for each node, run the following:
+::: 
+
 ::: {.cell .code}
 
 ```python
@@ -199,13 +202,15 @@ for node in slice.get_nodes():
 ## Gather ssh Details and Set Environment Variables
 
 ### variables specific to this slice
+:::
+
+
 ::: {.cell .code}
 
 ```python
 NDN1_IP = str(slice.get_node("ndn1").get_management_ip())
 NDN1_USER =  str(slice.get_node("ndn1").get_username())
 NDN1_if_FWDR = slice.get_node("ndn1").get_interfaces()[0].get_os_interface()
-
 
 ```
 :::
