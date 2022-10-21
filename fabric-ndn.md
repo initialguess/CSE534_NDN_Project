@@ -86,7 +86,6 @@ cat ${FABRIC_BASTION_SSH_CONFIG_FILE}
 #TODO: Determine the best site, or choose random if all equal
 
 Give your slice a unique name. You can also set the FABRIC site at which you want to reserve resources in the cell below:
-
 :::
 
 ::: {.cell .code}
@@ -101,6 +100,7 @@ SITE="UCSD"
 
 Now we are ready to import fablib! And we'll use it to see what resources are available at FABRIC sites.
 
+:::
 ::: {.cell .code}
 ```python
 import json
@@ -110,11 +110,7 @@ from fabrictestbed_extensions.fablib.fablib import fablib
 :::
 
 ::: {.cell .markdown}
-
-
 If you already have the resources for this experiment (for example: you ran this part of the notebook previously, and are now returning to pick off where you left off), you don't need to reserve resources again. If the following cell tells you that you already have resources, you can just skip to the part where you left off last.
-
-
 :::
 
 
