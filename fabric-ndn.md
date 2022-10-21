@@ -82,8 +82,7 @@ cat ${FABRIC_BASTION_SSH_CONFIG_FILE}
 ::: {.cell .markdown} 
 
 ### Reserve resources
-
-#TODO: Determine the best site, or choose random if all equal
+TODO: Determine the best site, or choose random if all equal
 
 Give your slice a unique name. You can also set the FABRIC site at which you want to reserve resources in the cell below:
 :::
@@ -94,14 +93,16 @@ Give your slice a unique name. You can also set the FABRIC site at which you wan
 SLICENAME=os.environ['FABRIC_BASTION_USERNAME'] + "-fabric-ndn"
 SITE="UCSD"
 ```
+
 :::
 
 ::: {.cell .markdown}
-
 Now we are ready to import fablib! And we'll use it to see what resources are available at FABRIC sites.
-
 :::
+
+
 ::: {.cell .code}
+
 ```python
 import json
 import traceback
@@ -171,8 +172,11 @@ slice.submit()
 ```
 :::
 
+::: {.cell .markdown}
 # Slice Status
 When the slice is ready, the Slice state will be listed as StableOK
+:::
+
 ::: {.cell .code}
 
 ```python
@@ -190,9 +194,11 @@ for node in slice.get_nodes():
 ```
 :::
 
+::: {.cell .markdown}
+
 ## Gather ssh Details and Set Environment Variables
 
-# variables specific to this slice
+### variables specific to this slice
 ::: {.cell .code}
 
 ```python
