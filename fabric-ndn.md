@@ -83,7 +83,6 @@ cat ${FABRIC_BASTION_SSH_CONFIG_FILE}
 
 ### Reserve resources
 
-::: {.cell .markdown}
 #TODO: Determine the best site, or choose random if all equal
 
 Give your slice a unique name. You can also set the FABRIC site at which you want to reserve resources in the cell below:
