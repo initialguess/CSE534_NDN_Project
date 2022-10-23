@@ -85,7 +85,9 @@ cat ${FABRIC_BASTION_SSH_CONFIG_FILE}
 ::: {.cell .markdown} 
 
 ### Setup the Experiments
-Import Fabric API from
+Import Fabric API and slice manager
+
+:::
 
 ::: {.cell .code}
 
@@ -147,7 +149,6 @@ disk = 40
 ```
 :::
 
-:::
 
 ::: {.cell .code}
 
