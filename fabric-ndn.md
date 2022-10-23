@@ -152,17 +152,17 @@ For the nodes, I referenced the CPU and Memory section of the Hardware Guide.
 slice = fablib.new_slice(name=SLICENAME)
 
 
-ndn1 = slice.add_node(name="ndn1", site=SITE, cores=6, ram=8, image='default_ubuntu_20')
-ndn2 = slice.add_node(name="ndn2", site=SITE, cores=6, ram=8, image='default_ubuntu_20')
-fwdr = slice.add_node(name="forwarder", site=SITE, cores=6, ram=8, image='default_ubuntu_20')
+ndn1 = slice.add_node(name="ndn1", site=SITE, cores=6, ram=64, image='default_ubuntu_20')
+ndn2 = slice.add_node(name="ndn2", site=SITE, cores=6, ram=64, image='default_ubuntu_20')
+fwdr = slice.add_node(name="fwdr", site=SITE, cores=6, ram=64, image='default_ubuntu_20')
 
 ndn1_interface = ndn1.add_component(model="NIC_Basic", name="interface1").get_interfaces()[0]
 ndn2_interface = ndn2.add_component(model="NIC_Basic", name="interface2").get_interfaces()[0]
 fwdr_interface1 = fwdr.add_component(model="NIC_Basic", name="fwdr_interface1").get_interfaces()[0]
 fwdr_interface2 = fwdr.add_component(model="NIC_Basic", name="fwdr_interface2").get_interfaces()[0]
 
-net1 = slice.add_l2network(name='net1', type='L2Bridge', interfaces=[interface1, fwdr_interface1])
-net2 = slice.add_l2network(name='net2', type='L2Bridge', interfaces=[interface2, fwdr_interface2])
+#net1 = slice.add_l2network(name='net1', type='L2Bridge', interfaces=[ndn1_interface, fwdr_interface1])
+#net2 = slice.add_l2network(name='net2', type='L2Bridge', interfaces=[ndn2_interface, fwdr_interface2])
 
 #ndn1_interface = ndn1.add_component(model="NIC_ConnectX_6", name="ndn1_iface").get_interfaces()[0]
 #ndn2_interface = ndn2.add_component(model="NIC_ConnectX_6", name="ndn2_iface").get_interfaces()[0]
