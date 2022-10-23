@@ -214,3 +214,27 @@ NDN1_if_FWDR = slice.get_node("ndn1").get_interfaces()[0].get_os_interface()
 
 ```
 :::
+
+::: {.cell .markdown}
+
+
+## Delete slice
+
+:::
+
+::: {.cell .markdown}
+
+
+When you are finished, delete your slice to free resources for other experimenters.
+
+
+:::
+
+
+::: {.cell .code}
+
+```python
+fablib.delete_slice(SLICENAME)
+```
+
+:::
