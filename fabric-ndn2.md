@@ -32,7 +32,8 @@ Add your unique Fabric credentials that you just set up.
 
 ::: {.cell .code}
 
-```bash
+```
+%%bash
 export FABRIC_BASTION_USERNAME='gsinkins_0000025334' 
 export FABRIC_PROJECT_ID='6ce270de-788d-4e07-8bae-3206860a6387'
 export FABRIC_BASTION_PRIVATE_KEY_LOCATION=${HOME}/work/fabric_config/fabric_bastion_key
@@ -49,7 +50,8 @@ export FABRIC_SLICE_PUBLIC_KEY_FILE=${FABRIC_SLICE_PRIVATE_KEY_FILE}.pub
 :::
 
 ::: {.cell .code}
-```bash
+```
+%%bash
 chmod 600 ${FABRIC_BASTION_PRIVATE_KEY_LOCATION}
 chmod 600 ${FABRIC_SLICE_PRIVATE_KEY_FILE}
 
@@ -63,7 +65,8 @@ chmod 600 ${FABRIC_SLICE_PRIVATE_KEY_FILE}
 
 ::: {.cell .code}
 
-```bash
+```
+%%bash
 export FABRIC_RC_FILE=${HOME}'/work/fabric_config/fabric_rc'
 
 cat <<EOF > ${FABRIC_RC_FILE}
@@ -97,7 +100,8 @@ EOF
 
 ::: {.cell .code}
 
-```bash
+```
+%%bash
 export FABRIC_BASTION_SSH_CONFIG_FILE=${HOME}'/work/fabric_config/ssh_config'
 
 cat <<EOF > ${FABRIC_BASTION_SSH_CONFIG_FILE}
