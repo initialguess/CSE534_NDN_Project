@@ -74,6 +74,7 @@ echo "     IdentityFile $2"                 >> ${FABRIC_BASTION_SSH_CONFIG_FILE}
 echo "     StrictHostKeyChecking no"        >> ${FABRIC_BASTION_SSH_CONFIG_FILE}
 echo "     UserKnownHostsFile /dev/null"    >> ${FABRIC_BASTION_SSH_CONFIG_FILE}
 
+
 cat ${FABRIC_BASTION_SSH_CONFIG_FILE}
 ```
 :::

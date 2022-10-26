@@ -153,104 +153,64 @@ disk = 40
 ::: {.cell .code}
 
 ```python
+ndn1 = slice.add_node(name="ndn1", site=SITE, cores=6, ram=64, disk=100, image='default_ubuntu_20')
+ndn2 = slice.add_node(name="ndn2", site=SITE, cores=6, ram=64, disk=100,image='default_ubuntu_20')
+fwdr = slice.add_node(name="fwdr", site=SITE, cores=6, ram=64, disk=100, image='default_ubuntu_20')
 
-from fabrictestbed.slice_editor import ExperimentTopology, Capacities, ComponentType, ComponentModelType, ServiceType
-# Create topology
-t = ExperimentTopology()
+ndn1_interface = ndn1.add_component(model="NIC_Basic", name="if1").get_interfaces()[0]
+ndn2_interface = ndn2.add_component(model="NIC_Basic", name="if2").get_interfaces()[0]
+fwdr_interface = fwdr.add_component(model="NIC_Basic", name="if1").get_interfaces()[0]
+fwdr_interface2 = fwdr.add_component(model="NIC_Basic", name="if2").get_interfaces()[0]
 
-# Add node
-n1 = t.add_node(name=node1_name, site=site)
+net1 = slice.add_l2network(name='net1', type='L2Bridge', interfaces=[ndn1_interface, fwdr_interface])
+net2 = slice.add_l2network(name='net2', type='L2Bridge', interfaces=[ndn2_interface, fwdr_interface2])
 
-# Set capacities
-cap = Capacities()
-cap.set_fields(core=cores, ram=ram, disk=disk)
-
-# Set Properties
-n1.set_properties(capacities=cap, image_type=image_type, image_ref=image)
-
-# Add node
-n2 = t.add_node(name=node2_name, site=site)
-
-# Set properties
-n2.set_properties(capacities=cap, image_type=image_type, image_ref=image)
-
-# Shared Cards
-n1.add_component(model_type=ComponentModelType.SharedNIC_ConnectX_6, name=nic1_name)
-n2.add_component(model_type=ComponentModelType.SharedNIC_ConnectX_6, name=nic2_name)
-
-# L2Bridge Service
-t.add_network_service(name=network_service_name, nstype=ServiceType.L2Bridge, interfaces=t.interface_list)
-
-# Generate Slice Graph
-slice_graph = t.serialize()
-
-# Request slice from Orchestrator
-return_status, slice_reservations = slice_manager.create(slice_name=slice_name, 
-                                            slice_graph=slice_graph, 
-                                            ssh_key=slice_public_key)
-
-if return_status == Status.OK:
-    slice_id = slice_reservations[0].get_slice_id()
-    print("Submitted slice creation request. Slice ID: {}".format(slice_id))
-else:
-    print(f"Failure: {slice_reservations}")
-
+slice.submit()
 ```
 :::
 
 ::: {.cell .markdown}
-## Get the Slice
-
+## Slice Status
+When the slice is ready, the Slice state will be listed as StableOK
 :::
 
 ::: {.cell .code}
 
 ```python
+print(f"{slice}")
+```
+:::
+
+::: {.cell .markdown}
+## Get Login Details
+To get the log in details for each node, run the following:
+::: 
+
+::: {.cell .code}
+
+```python
+for node in slice.get_nodes():
+    print(f"{node}")
+```
+:::
+
+::: {.cell .markdown}
+
+## Gather ssh Details and Set Environment Variables
+
+### variables specific to this slice
+:::
 
 
-import time
-def wait_for_slice(slice,timeout=180,interval=10,progress=False):
-    timeout_start = time.time()
+::: {.cell .code}
 
-    if progress: print("Waiting for slice .", end = '')
-    while time.time() < timeout_start + timeout:
-        return_status, slices = slice_manager.slices(excludes=[SliceState.Dead,SliceState.Closing])
-
-        if return_status == Status.OK:
-            slice = list(filter(lambda x: x.slice_name == slice_name, slices))[0]
-            if slice.slice_state == "StableOK":
-                if progress: print(" Slice state: {}".format(slice.slice_state))
-                return slice
-            if slice.slice_state == "Closing" or slice.slice_state == "Dead":
-                if progress: print(" Slice state: {}".format(slice.slice_state))
-                return slice    
-        else:
-            print(f"Failure: {slices}")
-        
-        if progress: print(".", end = '')
-        time.sleep(interval)
-    
-    if time.time() >= timeout_start + timeout:
-        if progress: print(" Timeout exceeded ({} sec). Slice: {} ({})".format(timeout,slice.slice_name,slice.slice_state))
-        return slice    
-
-
-return_status, slices = slice_manager.slices(excludes=[SliceState.Dead,SliceState.Closing])
-
-if return_status == Status.OK:
-    slice = list(filter(lambda x: x.slice_name == slice_name, slices))[0]
-    slice = wait_for_slice(slice, progress=True)
-
-print()
-print("Slice Name : {}".format(slice.slice_name))
-print("ID         : {}".format(slice.slice_id))
-print("State      : {}".format(slice.slice_state))
-print("Lease End  : {}".format(slice.lease_end))
-
+```python
+NDN1_IP = str(slice.get_node("ndn1").get_management_ip())
+NDN1_USER =  str(slice.get_node("ndn1").get_username())
+NDN1_if_FWDR = slice.get_node("ndn1").get_interfaces()[0].get_os_interface()
 
 ```
-
-::: 
+:::
 
 ::: {.cell .markdown}
 ## Delete Slice
