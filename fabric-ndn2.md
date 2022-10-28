@@ -153,6 +153,8 @@ disk = 40
 ::: {.cell .code}
 
 ```python
+slice = fablib.new_slice(name=SLICENAME)
+
 ndn1 = slice.add_node(name="ndn1", site=SITE, cores=6, ram=64, disk=100, image='default_ubuntu_20')
 ndn2 = slice.add_node(name="ndn2", site=SITE, cores=6, ram=64, disk=100,image='default_ubuntu_20')
 fwdr = slice.add_node(name="fwdr", site=SITE, cores=6, ram=64, disk=100, image='default_ubuntu_20')
