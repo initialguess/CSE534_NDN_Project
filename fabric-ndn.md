@@ -150,26 +150,31 @@ For the nodes, I referenced the CPU and Memory section of the Hardware Guide.
 ::: {.cell .code}
 
 ```python
-slice = fablib.new_slice(name=SLICENAME)
+try:
+    slice = fablib.new_slice(name='fabric-ndn')
+
+    # ndn1
+    ndn1 = slice.add_node(name="ndn1", site=SITE, cores=6, ram=64, disk=100, image='default_ubuntu_20')
+    ndn1_interface = ndn1.add_component(model="NIC_Basic", name='-nic').get_interfaces()[0]
+
+    # ndn2 (will eventually be on a separate site)
+    ndn2 = slice.add_node(name="ndn2", site=SITE, cores=6, ram=64, disk=100,image='default_ubuntu_20')
+    ndn2_interface = ndn2.add_component(model="NIC_Basic", name='-nic').get_interfaces()[0]
+
+    # Forwarder
+    fwdr = slice.add_node(name="fwdr", site=SITE, cores=6, ram=64, disk=100, image='default_ubuntu_20')
+    fwdr_if1 = fwdr.add_component(model="NIC_Basic", name='-if1').get_interfaces()[0]
+    fwdr_if2 = fwdr.add_component(model="NIC_Basic", name='-if2').get_interfaces()[0]
+
+    # Networks
+    net1 = slice.add_l2network(name='net1', type='L2Bridge', interfaces=[ndn1_interface,fwdr_if1])
+    net2 = slice.add_l2network(name='net_2', type='L2Bridge', interfaces=[ndn2_interface,fwdr_if2])
 
 
-ndn1 = slice.add_node(name="ndn1", site=SITE, cores=6, ram=64, image='default_ubuntu_20')
-#ndn2 = slice.add_node(name="ndn2", site=SITE, cores=6, ram=64, image='default_ubuntu_20')
-fwdr = slice.add_node(name="fwdr", site=SITE, cores=6, ram=64, image='default_ubuntu_20')
 
-ndn1_interface = ndn1.add_component(model="NIC_Basic", name="if1").get_interfaces()[0]
-#ndn2_interface = ndn2.add_component(model="NIC_Basic", name="if2").get_interfaces()[0]
-fwdr_interface = fwdr.add_component(model="NIC_Basic", name="if1").get_interfaces()[0]
-fwdr_interface2 = fwdr.add_component(model="NIC_Basic", name="if2").get_interfaces()[0]
+    slice.submit()
 
-net1 = slice.add_l2network(name='net1', type='L2Bridge', interfaces=[ndn1_interface, fwdr_interface])
-#net2 = slice.add_l2network(name='net2', type='L2Bridge', interfaces=[ndn2_interface, fwdr_interface2])
-
-#ndn1_interface = ndn1.add_component(model="NIC_ConnectX_6", name="ndn1_iface").get_interfaces()[0]
-#ndn2_interface = ndn2.add_component(model="NIC_ConnectX_6", name="ndn2_iface").get_interfaces()[0]
-
-
-slice.submit()
+except Exception as e:
 ```
 :::
 
