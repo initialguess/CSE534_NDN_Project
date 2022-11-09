@@ -1,3 +1,6 @@
 *.ipynb
 *.pdf
 *.code-workspace
+test.sh
+ssh_cmds.sh
+update.sh

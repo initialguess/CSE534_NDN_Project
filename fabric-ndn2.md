@@ -104,26 +104,6 @@ import json
 The FABRIC API is used via proxy objects that manage connections to the control framework.
 :::
 
-
-::: {.cell .code}
-
-```python
-print(f"FABRIC_ORCHESTRATOR_HOST: {os.environ['FABRIC_ORCHESTRATOR_HOST']}")
-print(f"FABRIC_CREDMGR_HOST:      {os.environ['FABRIC_CREDMGR_HOST']}")
-print(f"FABRIC_TOKEN_LOCATION:    {os.environ['FABRIC_TOKEN_LOCATION']}")
-
-
-slice_manager = SliceManager(oc_host=os.environ['FABRIC_ORCHESTRATOR_HOST'], 
-                             cm_host=os.environ['FABRIC_CREDMGR_HOST'] ,
-                             project_name='ASU-CSE-534', 
-                             scope='all')
-
-# Initialize the slice manager
-slice_manager.initialize()
-
-```
-:::
-
 ::: {.cell .markdown}
 ## Create Slice
 Configure Slice Parameters
@@ -134,12 +114,13 @@ Configure Slice Parameters
 
 ```python
 slice_name = 'fabric-ndn'
-site = 'UCSD'
+site1 = 'UCSD'
 node1_name = 'ndn1'
 node2_name = 'ndn2'
-network_service_name='fwdr'
 nic1_name = 'ndn1-nic'
 nic2_name = 'ndn2-nic'
+network1_name='fwdr1'
+network2_name='fwdr2'
 username = 'ubuntu'
 image = 'default_ubuntu_20'
 image_type = 'qcow2'
@@ -153,21 +134,27 @@ disk = 40
 ::: {.cell .code}
 
 ```python
-slice = fablib.new_slice(name=SLICENAME)
+try:
+    slice = fablib.new_slice(name=slice_name)
 
-ndn1 = slice.add_node(name="ndn1", site=SITE, cores=6, ram=64, disk=100, image='default_ubuntu_20')
-ndn2 = slice.add_node(name="ndn2", site=SITE, cores=6, ram=64, disk=100,image='default_ubuntu_20')
-fwdr = slice.add_node(name="fwdr", site=SITE, cores=6, ram=64, disk=100, image='default_ubuntu_20')
+    # ndn1
+    ndn1 = slice.add_node(name="ndn1", site=site1, cores=6, ram=64, disk=100, image='default_ubuntu_20')
+    ndn1_interface = ndn1.add_component(model="NIC_Basic", name=nic1_name).get_interfaces()[0]
 
-ndn1_interface = ndn1.add_component(model="NIC_Basic", name="if1").get_interfaces()[0]
-ndn2_interface = ndn2.add_component(model="NIC_Basic", name="if2").get_interfaces()[0]
-fwdr_interface = fwdr.add_component(model="NIC_Basic", name="if1").get_interfaces()[0]
-fwdr_interface2 = fwdr.add_component(model="NIC_Basic", name="if2").get_interfaces()[0]
+    # ndn2 (will eventually be on a separate site)
+    ndn2 = slice.add_node(name="ndn2", site=site1, cores=6, ram=64, disk=100,image='default_ubuntu_20')
+    ndn2_interface = ndn2.add_component(model="NIC_Basic", name=nic2_name).get_interfaces()[0]
 
-net1 = slice.add_l2network(name='net1', type='L2Bridge', interfaces=[ndn1_interface, fwdr_interface])
-net2 = slice.add_l2network(name='net2', type='L2Bridge', interfaces=[ndn2_interface, fwdr_interface2])
+    # Networks
+    fwdr = slice.add_node(name="fwdr", site=site1, cores=6, ram=64, disk=100, image='default_ubuntu_20')
 
-slice.submit()
+    net1 = slice.add_l3network(name=network1_name, interfaces=[ndn1_interface], type='IPv4')
+    net2 = slice.add_l3network(name=network2_name, interfaces=[ndn2_interface], type='IPv4')
+
+    slice.submit()
+
+except Exception as e:
+    print(f"Exception: {e}")
 ```
 :::
 
