@@ -6,7 +6,8 @@ This experiment explores using NDN Data Plane Development on Fabric.  The DPDK w
 
 This experiment runs on the [FABRIC JupyterHub server](https://jupyter.fabric-testbed.net/). You will need an account on FABRIC, and you will need to have set up bastion keys, to run it.
 
-To set up your keys, open this [notebook to configure your environment]((./fabric-ndn/configure_environment.ipynb)).  After completeing this step, return here to run the project.
+To set up your keys, open this [notebook to configure your environment](fabric-ndn/configure_environment.ipynb).  After completeing this step, return here to run the project.
+
 
 This project should take about 60-120 minutes to run.
 
@@ -20,8 +21,8 @@ TODO: Determine the best sites, list the suggested sites for the project
 ::: {.cell .code}
 
 ```python
-SLICENAME=os.environ['FABRIC_BASTION_USERNAME'] + "-fabric-ndn"
-SITE="UCSD"
+SLICENAME='fabric-ndn'
+SITE='UCSD'
 ```
 
 :::
@@ -44,28 +45,29 @@ from fabrictestbed_extensions.fablib.fablib import fablib
 
 ```python
 try:
-    slice = fablib.new_slice(name='fabric-ndn')
+    slice = fablib.new_slice(SLICENAME)
 
     # ndn1
     ndn1 = slice.add_node(name="ndn1", site=SITE, cores=6, ram=64, disk=100, image='default_ubuntu_20')
-    ndn1_interface = ndn1.add_component(model="NIC_Basic", name='-nic').get_interfaces()[0]
+    ndn1_interface = ndn1.add_component(model="NIC_Basic", name='nic').get_interfaces()[0]
 
     # ndn2 (will eventually be on a separate site)
     ndn2 = slice.add_node(name="ndn2", site=SITE, cores=6, ram=64, disk=100,image='default_ubuntu_20')
-    ndn2_interface = ndn2.add_component(model="NIC_Basic", name='-nic').get_interfaces()[0]
+    ndn2_interface = ndn2.add_component(model="NIC_Basic", name='nic').get_interfaces()[0]
 
     # Forwarder
     fwdr = slice.add_node(name="fwdr", site=SITE, cores=6, ram=64, disk=100, image='default_ubuntu_20')
-    fwdr_if1 = fwdr.add_component(model="NIC_Basic", name='-if1').get_interfaces()[0]
-    fwdr_if2 = fwdr.add_component(model="NIC_Basic", name='-if2').get_interfaces()[0]
+    fwdr_if1 = fwdr.add_component(model="NIC_Basic", name='if1').get_interfaces()[0]
+    fwdr_if2 = fwdr.add_component(model="NIC_Basic", name='if2').get_interfaces()[0]
 
     # Networks
     net1 = slice.add_l2network(name='net1', type='L2Bridge', interfaces=[ndn1_interface,fwdr_if1])
-    net2 = slice.add_l2network(name='net_2', type='L2Bridge', interfaces=[ndn2_interface,fwdr_if2])
+    net2 = slice.add_l2network(name='net2', type='L2Bridge', interfaces=[ndn2_interface,fwdr_if2])
 
     slice.submit()
 
 except Exception as e:
+    print(f"Exception: {e}")
 ```
 :::
 
@@ -79,7 +81,7 @@ When the slice is ready, the Slice state will be listed as StableOK; be patient 
 ```python
 try:
     # Ensure slice details are retrieved
-    slice = fablib.get_slice(name="MySlice")
+    slice = fablib.get_slice(SLICENAME)
 
     # Print the node details
     for node in slice.get_nodes():

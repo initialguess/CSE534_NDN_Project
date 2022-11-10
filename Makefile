@@ -17,6 +17,6 @@ PANDOCFLAGS=--pdf-engine=xelatex\
 
 all: $(NBS) $(PDFS)
 
-notebook: $(NBS)
+notebooks: $(NBS)
 
 pdfs: $(PDFS)

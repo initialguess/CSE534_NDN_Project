@@ -1,3 +1,4 @@
+*.ipynb
 *.pdf
 *.code-workspace
 test.sh
