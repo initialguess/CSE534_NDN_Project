@@ -61,8 +61,8 @@ try:
     fwdr_if2 = fwdr.add_component(model="NIC_Basic", name='if2').get_interfaces()[0]
 
     # Networks
-    net1 = slice.add_l2network(name='net1', type='L2Bridge', interfaces=[ndn1_interface,fwdr_if1])
-    net2 = slice.add_l2network(name='net2', type='L2Bridge', interfaces=[ndn2_interface,fwdr_if2])
+    net1 = slice.add_l3network(name='net1', type='L2Bridge', interfaces=[ndn1_interface,fwdr_if1])
+    net2 = slice.add_l3network(name='net2', type='L2Bridge', interfaces=[ndn2_interface,fwdr_if2])
 
     slice.submit()
 
