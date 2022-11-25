@@ -22,7 +22,8 @@ TODO: Determine the best sites, list the suggested sites for the project
 
 ```python
 SLICENAME='fabric-ndn'
-SITE='UCSD'
+SITE1='UCSD'
+SITE2='SALT'
 ```
 
 :::
@@ -48,15 +49,15 @@ try:
     slice = fablib.new_slice(SLICENAME)
 
     # ndn1
-    ndn1 = slice.add_node(name="ndn1", site=SITE, cores=6, ram=128, disk=100, image='default_ubuntu_20')
+    ndn1 = slice.add_node(name="ndn1", site=SITE1, cores=6, ram=128, disk=100, image='default_ubuntu_20')
     ndn1_interface = ndn1.add_component(model="NIC_Basic", name='nic').get_interfaces()[0]
 
     # ndn2 (will eventually be on a separate site)
-    ndn2 = slice.add_node(name="ndn2", site=SITE, cores=6, ram=128, disk=100,image='default_ubuntu_20')
+    ndn2 = slice.add_node(name="ndn2", site=SITE2, cores=6, ram=128, disk=100,image='default_ubuntu_20')
     ndn2_interface = ndn2.add_component(model="NIC_Basic", name='nic').get_interfaces()[0]
 
     # Forwarder
-    fwdr = slice.add_node(name="fwdr", site=SITE, cores=6, ram=128, disk=100, image='default_ubuntu_20')
+    fwdr = slice.add_node(name="fwdr", site=SITE1, cores=6, ram=128, disk=100, image='default_ubuntu_20')
     fwdr_if1 = fwdr.add_component(model="NIC_Basic", name='if1').get_interfaces()[0]
     fwdr_if2 = fwdr.add_component(model="NIC_Basic", name='if2').get_interfaces()[0]
 
