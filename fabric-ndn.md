@@ -63,7 +63,7 @@ try:
     # Networks
     net1 = slice.add_l3network(name='net1', type='L2Bridge', interfaces=[ndn1_interface,fwdr_if1])
     net2 = slice.add_l3network(name='net2', type='L2Bridge', interfaces=[ndn2_interface,fwdr_if2])
-
+    net3 = slice.add_l3network(name='net3', type='L2Bridge', interfaces=[fwdr_if1, fwdr_if2])
     slice.submit()
 
 except Exception as e:
