@@ -74,6 +74,8 @@ SITE="TACC"
 import json
 import traceback
 from fabrictestbed_extensions.fablib.fablib import fablib
+import datetime
+import threading
 ```
 :::
 
@@ -104,7 +106,6 @@ ifaceforward1 = forward1.add_component(model="NIC_Basic", name="if_forward_1").g
 ifaceforward2 = forward2.add_component(model="NIC_Basic", name="if_forward_2").get_interfaces()[0]
 ifaceforward11 = forward1.add_component(model="NIC_Basic", name="if_forward_11").get_interfaces()[0]
 ifaceforward22 = forward2.add_component(model="NIC_Basic", name="if_forward_22").get_interfaces()[0]
-ifaceforward111 = forward1.add_component(model="NIC_Basic", name="if_forward_111").get_interfaces()[0]
 ifacenode1 = node1.add_component(model="NIC_Basic", name="if_node_1").get_interfaces()[0]
 ifacenode2 = node2.add_component(model="NIC_Basic", name="if_node_2").get_interfaces()[0]
 net1 = slice.add_l3network(name='net_1', type='L2Bridge', interfaces=[ifaceforward1, ifaceforward2])
@@ -117,274 +118,42 @@ slice.submit()
 
 ::: {.cell .code}
 ```python
-print(f"{slice}")
-```
-:::
-
-::: {.cell .code}
-```python
 for node in slice.get_nodes():
-    print(f"{node}")
+    print(node.get_name())
+    print(node.get_ssh_command())
 ```
 :::
 
 ::: {.cell .code}
 ```python
-# variables specific to this slice
-FORWARD1_IP = str(slice.get_node("forward1").get_management_ip())
-FORWARD1_USER =  str(slice.get_node("forward1").get_username())
-FORWARD1_IFACE = slice.get_node("forward1").get_interfaces()[0].get_os_interface()
+def phase1(name: str):
+    commands = [
+        f"echo \"PS1=\'{name}:\\w\\$ \'\" >> .bashrc", "sudo apt update",
+        "wget http://www.mellanox.com/downloads/ofed/MLNX_OFED-5.8-1.0.1.1/MLNX_OFED_SRC-debian-5.8-1.0.1.1.tgz",
+        "tar zxvf MLNX_OFED_SRC-debian-5.8-1.0.1.1.tgz","sudo MLNX_OFED_SRC-5.8-1.0.1.1/./install.pl", "git clone https://github.com/usnistgov/ndn-dpdk",
+        "git clone https://github.com/DPDK/dpdk", "sudo apt install --no-install-recommends -y ca-certificates curl jq lsb-release sudo nodejs",
+        "chmod a+x ndn-dpdk/docs/ndndpdk-depends.sh", "echo | ndn-dpdk/docs/./ndndpdk-depends.sh", "sudo npm install -g pnpm", "cd ndn-dpdk/core && pnpm install",
+        "cd ndn-dpdk && NDNDPDK_MK_RELEASE=1 make && sudo make install", "sudo python3 dpdk/usertools/dpdk-hugepages.py -p 1G --setup 64G",
+        "sudo ndndpdk-ctrl systemd start", "ndndpdk-ctrl"
+    ]
+    node = slice.get_node(name=name)
+    try:
+        for command in commands:
+            print(f"Executing {command} on {name}")
+            stdout, stderr = node.execute(command)
+        print(f"Finished: {name}")
+        if stdout == "true":
+            print(f"Success on {name}")
+        else:
+            print(f"Failure on {name}")
+        print(f"{name} done at {datetime.datetime.now()}")
+    except Exception:
+        print(f"Failed: {name}")
 
-FORWARD2_IP = str(slice.get_node("forward2").get_management_ip())
-FORWARD2_USER =  str(slice.get_node("forward2").get_username())
-FORWARD2_IFACE = slice.get_node("forward2").get_interfaces()[0].get_os_interface()
-
-NODE1_IP = str(slice.get_node("node1").get_management_ip())
-NODE1_USER = str(slice.get_node("node1").get_username())
-NODE1_IFACE = slice.get_node("node1").get_interfaces()[0].get_os_interface()
-
-NODE2_IP = str(slice.get_node("node2").get_management_ip())
-NODE2_USER = str(slice.get_node("node2").get_username())
-NODE2_IFACE = slice.get_node("node2").get_interfaces()[0].get_os_interface()
+print(f"Starting: {datetime.datetime.now()}")
+for node in slice.get_nodes():
+    threading.Thread(target=phase1, args=(node.get_name(),)).start()
 ```
-:::
-
-::: {.cell .markdown}
-## Phase I - NDN-DPDK
-Phase I can be broken up logically into three parts:
-* Installing the Mellanox drivers for the NVIDIA ConnectX-6 network interface
-* Installing the NDN DPDK depdencies and cloning the repositories
-* Making and installing NDN DPDK onto the node
-
-Each part of the installation can take up to 30 minutes and they must be run in order.
-:::
-
-::: {.cell .code}
-```bash
-%%bash --bg -s "$FABRIC_SLICE_PRIVATE_KEY_FILE" "$FABRIC_BASTION_USERNAME" "$FABRIC_BASTION_HOST" "$FORWARD1_USER" "$FORWARD1_IP" "$FORWARD1_IFACE"
-ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i $1 -J $2@$3 $4@$5 << EOF
-##############################################
-
-touch ~/.hushlogin
-sudo apt update
-wget http://www.mellanox.com/downloads/ofed/MLNX_OFED-5.8-1.0.1.1/MLNX_OFED_SRC-debian-5.8-1.0.1.1.tgz
-tar zxvf MLNX_OFED_SRC-debian-5.8-1.0.1.1.tgz
-sudo MLNX_OFED_SRC-5.8-1.0.1.1/./install.pl
-
-##############################################
-exit
-EOF
-```
-:::
-
-::: {.cell .code}
-```bash
-%%bash --bg -s "$FABRIC_SLICE_PRIVATE_KEY_FILE" "$FABRIC_BASTION_USERNAME" "$FABRIC_BASTION_HOST" "$NODE1_USER" "$NODE1_IP" "$NODE1_IFACE"
-ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i $1 -J $2@$3 $4@$5 << EOF
-##############################################
-
-touch ~/.hushlogin
-sudo apt update
-wget http://www.mellanox.com/downloads/ofed/MLNX_OFED-5.8-1.0.1.1/MLNX_OFED_SRC-debian-5.8-1.0.1.1.tgz
-tar zxvf MLNX_OFED_SRC-debian-5.8-1.0.1.1.tgz
-sudo MLNX_OFED_SRC-5.8-1.0.1.1/./install.pl
-
-##############################################
-exit
-EOF
-```
-:::
-
-::: {.cell .code}
-```bash
-%%bash --bg -s "$FABRIC_SLICE_PRIVATE_KEY_FILE" "$FABRIC_BASTION_USERNAME" "$FABRIC_BASTION_HOST" "$NODE2_USER" "$NODE2_IP" "$NODE2_IFACE"
-ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i $1 -J $2@$3 $4@$5 << EOF
-##############################################
-
-touch ~/.hushlogin
-sudo apt update
-wget http://www.mellanox.com/downloads/ofed/MLNX_OFED-5.8-1.0.1.1/MLNX_OFED_SRC-debian-5.8-1.0.1.1.tgz
-tar zxvf MLNX_OFED_SRC-debian-5.8-1.0.1.1.tgz
-sudo MLNX_OFED_SRC-5.8-1.0.1.1/./install.pl
-
-##############################################
-exit
-EOF
-```
-:::
-
-::: {.cell .code}
-```bash
-%%bash -s "$FABRIC_SLICE_PRIVATE_KEY_FILE" "$FABRIC_BASTION_USERNAME" "$FABRIC_BASTION_HOST" "$FORWARD2_USER" "$FORWARD2_IP" "$FORWARD2_IFACE"
-ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i $1 -J $2@$3 $4@$5 << EOF
-##############################################
-
-touch ~/.hushlogin
-sudo apt update
-wget http://www.mellanox.com/downloads/ofed/MLNX_OFED-5.8-1.0.1.1/MLNX_OFED_SRC-debian-5.8-1.0.1.1.tgz
-tar zxvf MLNX_OFED_SRC-debian-5.8-1.0.1.1.tgz
-sudo MLNX_OFED_SRC-5.8-1.0.1.1/./install.pl
-
-##############################################
-exit
-EOF
-```
-:::
-
-::: {.cell .markdown}
-### Wait here until this cell finishes
-:::
-
-::: {.cell .code}
-```bash
-%%bash --bg -s "$FABRIC_SLICE_PRIVATE_KEY_FILE" "$FABRIC_BASTION_USERNAME" "$FABRIC_BASTION_HOST" "$FORWARD1_USER" "$FORWARD1_IP" "$FORWARD1_IFACE"
-ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i $1 -J $2@$3 $4@$5 << EOF
-##############################################
-
-git clone https://github.com/usnistgov/ndn-dpdk
-git clone https://github.com/DPDK/dpdk
-sudo apt install --no-install-recommends -y ca-certificates curl jq lsb-release sudo nodejs
-chmod a+x ndn-dpdk/docs/ndndpdk-depends.sh
-echo | ndn-dpdk/docs/./ndndpdk-depends.sh
-
-##############################################
-exit
-EOF
-```
-:::
-
-::: {.cell .code}
-```bash
-%%bash --bg -s "$FABRIC_SLICE_PRIVATE_KEY_FILE" "$FABRIC_BASTION_USERNAME" "$FABRIC_BASTION_HOST" "$NODE1_USER" "$NODE1_IP" "$NODE1_IFACE"
-ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i $1 -J $2@$3 $4@$5 << EOF
-##############################################
-
-git clone https://github.com/usnistgov/ndn-dpdk
-git clone https://github.com/DPDK/dpdk
-sudo apt install --no-install-recommends -y ca-certificates curl jq lsb-release sudo nodejs
-chmod a+x ndn-dpdk/docs/ndndpdk-depends.sh
-echo | ndn-dpdk/docs/./ndndpdk-depends.sh
-
-##############################################
-exit
-EOF
-```
-:::
-
-::: {.cell .code}
-```bash
-%%bash --bg -s "$FABRIC_SLICE_PRIVATE_KEY_FILE" "$FABRIC_BASTION_USERNAME" "$FABRIC_BASTION_HOST" "$NODE2_USER" "$NODE2_IP" "$NODE2_IFACE"
-ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i $1 -J $2@$3 $4@$5 << EOF
-##############################################
-
-git clone https://github.com/usnistgov/ndn-dpdk
-git clone https://github.com/DPDK/dpdk
-sudo apt install --no-install-recommends -y ca-certificates curl jq lsb-release sudo nodejs
-chmod a+x ndn-dpdk/docs/ndndpdk-depends.sh
-echo | ndn-dpdk/docs/./ndndpdk-depends.sh
-
-##############################################
-exit
-EOF
-```
-:::
-
-::: {.cell .code}
-```bash
-%%bash -s "$FABRIC_SLICE_PRIVATE_KEY_FILE" "$FABRIC_BASTION_USERNAME" "$FABRIC_BASTION_HOST" "$FORWARD2_USER" "$FORWARD2_IP" "$FORWARD2_IFACE"
-ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i $1 -J $2@$3 $4@$5 << EOF
-##############################################
-
-git clone https://github.com/usnistgov/ndn-dpdk
-git clone https://github.com/DPDK/dpdk
-sudo apt install --no-install-recommends -y ca-certificates curl jq lsb-release sudo nodejs
-chmod a+x ndn-dpdk/docs/ndndpdk-depends.sh
-echo | ndn-dpdk/docs/./ndndpdk-depends.sh
-
-##############################################
-exit
-EOF
-```
-:::
-
-::: {.cell .markdown}
-### Wait here until this cell finishes
-:::
-
-::: {.cell .code}
-```bash
-%%bash --bg -s "$FABRIC_SLICE_PRIVATE_KEY_FILE" "$FABRIC_BASTION_USERNAME" "$FABRIC_BASTION_HOST" "$FORWARD1_USER" "$FORWARD1_IP" "$FORWARD1_IFACE"
-ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i $1 -J $2@$3 $4@$5 << EOF
-##############################################
-
-sudo npm install -g pnpm
-cd ndn-dpdk/core && pnpm install
-cd .. && NDNDPDK_MK_RELEASE=1 make && sudo make install
-cd .. && sudo python3 dpdk/usertools/dpdk-hugepages.py -p 1G --setup 64G
-sudo ndndpdk-ctrl systemd start
-
-##############################################
-exit
-EOF
-```
-:::
-
-::: {.cell .code}
-```bash
-%%bash --bg -s "$FABRIC_SLICE_PRIVATE_KEY_FILE" "$FABRIC_BASTION_USERNAME" "$FABRIC_BASTION_HOST" "$NODE1_USER" "$NODE1_IP" "$NODE1_IFACE"
-ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i $1 -J $2@$3 $4@$5 << EOF
-##############################################
-
-sudo npm install -g pnpm
-cd ndn-dpdk/core && pnpm install
-cd .. && NDNDPDK_MK_RELEASE=1 make && sudo make install
-cd .. && sudo python3 dpdk/usertools/dpdk-hugepages.py -p 1G --setup 64G
-sudo ndndpdk-ctrl systemd start
-
-##############################################
-exit
-EOF
-```
-:::
-
-::: {.cell .code}
-```bash
-%%bash --bg -s "$FABRIC_SLICE_PRIVATE_KEY_FILE" "$FABRIC_BASTION_USERNAME" "$FABRIC_BASTION_HOST" "$NODE2_USER" "$NODE2_IP" "$NODE2_IFACE"
-ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i $1 -J $2@$3 $4@$5 << EOF
-##############################################
-
-sudo npm install -g pnpm
-cd ndn-dpdk/core && pnpm install
-cd .. && NDNDPDK_MK_RELEASE=1 make && sudo make install
-cd .. && sudo python3 dpdk/usertools/dpdk-hugepages.py -p 1G --setup 64G
-sudo ndndpdk-ctrl systemd start
-
-##############################################
-exit
-EOF
-```
-:::
-
-::: {.cell .code}
-```bash
-%%bash -s "$FABRIC_SLICE_PRIVATE_KEY_FILE" "$FABRIC_BASTION_USERNAME" "$FABRIC_BASTION_HOST" "$FORWARD2_USER" "$FORWARD2_IP" "$FORWARD2_IFACE"
-ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i $1 -J $2@$3 $4@$5 << EOF
-##############################################
-
-sudo npm install -g pnpm
-cd ndn-dpdk/core && pnpm install
-cd .. && NDNDPDK_MK_RELEASE=1 make && sudo make install
-cd .. && sudo python3 dpdk/usertools/dpdk-hugepages.py -p 1G --setup 64G
-sudo ndndpdk-ctrl systemd start
-
-##############################################
-exit
-EOF
-```
-:::
-
-::: {.cell .markdown}
-### Wait here until this cell finishes
 :::
 
 ::: {.cell .markdown}
