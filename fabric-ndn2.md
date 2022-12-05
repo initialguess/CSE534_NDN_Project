@@ -140,11 +140,15 @@ def phase1(name: str):
     ]
     node = slice.get_node(name=name)
     try:
+        stdout, stderr = node.execute("ndndpdk-ctrl -v")
+        if stdout.startswith("ndndpdk-ctrl version"):
+            print(f"Already installed on {name}")
+            return
         for command in commands:
             print(f"Executing {command} on {name}")
             stdout, stderr = node.execute(command)
         print(f"Finished: {name}")
-        if stdout == "true":
+        if stdout.startswith("ndndpdk-ctrl version"):
             print(f"Success on {name}")
         else:
             print(f"Failure on {name}")
