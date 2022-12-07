@@ -53,7 +53,7 @@ ifaceforward1 = forward1.add_component(model="NIC_Basic", name="if_forward_1").g
 ifaceforward2 = forward2.add_component(model="NIC_Basic", name="if_forward_2").get_interfaces()[0]
 ifaceforward11 = forward1.add_component(model="NIC_Basic", name="if_forward_11").get_interfaces()[0]
 ifaceforward22 = forward2.add_component(model="NIC_Basic", name="if_forward_22").get_interfaces()[0]
-ifaceforward111 = forward1.add_component(model="NIC_Basic", name="if_forward_111").get_interfaces()[0]
+#ifaceforward111 = forward1.add_component(model="NIC_Basic", name="if_forward_111").get_interfaces()[0]
 ifacenode1 = node1.add_component(model="NIC_Basic", name="if_node_1").get_interfaces()[0]
 ifacenode2 = node2.add_component(model="NIC_Basic", name="if_node_2").get_interfaces()[0]
 net1 = slice.add_l3network(name='net_1', type='L2Bridge', interfaces=[ifaceforward1, ifaceforward2])
@@ -72,8 +72,15 @@ print(f"{slice}")
 
 ::: {.cell .code}
 ```python
-for node in slice.get_nodes():
-    print(f"{node}")
+try:
+    # Ensure slice details are retrieved
+    slice = fablib.get_slice(SLICENAME)
+
+    # Print the node details
+    for node in slice.get_nodes():
+        print(f"{node}")
+except Exception as e:
+    print(f"Exception: {e}")
 ```
 :::
 
