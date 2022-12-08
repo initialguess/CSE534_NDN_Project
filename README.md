@@ -1,6 +1,6 @@
 # NDN on FABRIC
 
-Achieving high-speed Named Data Networking (NDN) forwarding on commodity hardware has now been shown to be possible. Meanwhile, the roll out of FABRIC, a national research infrastructure equipped with large amounts of compute and storage and interconnected by high speed optical links, makes it possible to easily recreate, and reproduce high speed NDN forwarding on commodity hardware to incrementally improve upon and continue innovation of the data structures and algorithms that make it possible. This project creates a notebook to facilitate this further development.
+Achieving high-speed Named Data Networking (NDN) forwarding on commodity hardware has now been shown to be possible. Meanwhile, the roll out of FABRIC, a national research infrastructure equipped with large amounts of compute and storage and interconnected by high speed optical links, makes it possible to easily recreate, and reproduce high speed NDN forwarding on commodity hardware to incrementally improve upon and continue innovation of the data structures and algorithms that make it possible. This project creates a notebook to facilitate this further development. More background in our [report](https://github.com/initialguess/fabric-ndn/blob/main/NDN%20on%20FABRIC.pdf).
 
 ## Usage
 
