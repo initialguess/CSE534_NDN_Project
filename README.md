@@ -8,5 +8,5 @@ Achieving high-speed Named Data Networking (NDN) forwarding on commodity hardwar
 
 * clone the repository: git clone https://github.com/initialguess/fabric-ndn
 * navigate to the repo directory: cd fabric-ndn
-* make the notebooks: Final-Project-Nair-Sinkinson-Womack-Yuanmake notebooks
+* make the notebooks: make notebooks
 * open the fabric-ndn notebook, follow the steps to configure your environment, the proceed with the project
