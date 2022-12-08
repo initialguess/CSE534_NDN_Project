@@ -4,12 +4,12 @@
 
 ::: {.cell .markdown}
 ## Background
-Add the background here
+Achieving high-speed Named Data Networking (NDN) forwarding on commodity hardware has now been shown to be possible. Meanwhile, the roll out of FABRIC, a national research infrastructure equipped with large amounts of compute and storage and interconnected by high speed optical links, makes it possible to easily recreate, and reproduce high speed NDN forwarding on commodity hardware to incrementally improve upon and continue innovation of the data structures and algorithms that make it possible. This project creates a notebook to facilitate this further development.
 :::
 
 ::: {.cell .markdown}
 ## Initial Setup
-Add information about the initial setup steps
+To run this notebook, the variables with <> must be filled with your corresponding information. The bastion key and slice key must also be in the matching directories, or the directories must be changed in order to interact with the FabLib library on FABRIC.
 :::
 
 
@@ -18,10 +18,10 @@ Add information about the initial setup steps
 import os
 
 # Specify your project ID
-os.environ['FABRIC_PROJECT_ID']='6ce270de-788d-4e07-8bae-3206860a6387'
+os.environ['FABRIC_PROJECT_ID']='<project_id>'
 
 # Set your Bastion username and private key
-os.environ['FABRIC_BASTION_USERNAME']='rjwomack_0000027821'
+os.environ['FABRIC_BASTION_USERNAME']='<username>'
 os.environ['FABRIC_BASTION_KEY_LOCATION']=os.environ['HOME']+'/work/fabric_config/bastion_key'
 
 # You can leave the rest on the default settings
@@ -64,7 +64,7 @@ cat ${FABRIC_BASTION_SSH_CONFIG_FILE}
 
 ::: {.cell .code}
 ```python
-SLICENAME=os.environ['FABRIC_BASTION_USERNAME'] + "rjwomack-fabric-ndn"
+SLICENAME=os.environ['FABRIC_BASTION_USERNAME'] + "<name>-fabric-ndn"
 SITE="TACC"
 ```
 :::
@@ -87,29 +87,37 @@ Add information about the resource reservation
 
 ::: {.cell .code}
 ```python
+two_node: bool = False # Select True for 2 node topology, False for 4 node
 try:
     if fablib.get_slice(SLICENAME):
         print("You already have a slice named %s." % SLICENAME)
         slice = fablib.get_slice(name=SLICENAME)
         print(slice)
 except Exception:
-    slice = fablib.new_slice(name=SLICENAME)
-
-    node1 = slice.add_node(name="node1", site=SITE, cores=6, ram=80, disk=60, image='default_ubuntu_20')
-    node2 = slice.add_node(name="node2", site=SITE, cores=6, ram=80, disk=60, image='default_ubuntu_20')
-    forward1 = slice.add_node(name="forward1", site=SITE, cores=6, ram=80, disk=60, image='default_ubuntu_20')
-    forward2 = slice.add_node(name="forward2", site=SITE, cores=6, ram=80, disk=60, image='default_ubuntu_20')
-    ifaceforward1 = forward1.add_component(model="NIC_Basic", name="if_forward_1").get_interfaces()[0]
-    ifaceforward2 = forward2.add_component(model="NIC_Basic", name="if_forward_2").get_interfaces()[0]
-    ifaceforward11 = forward1.add_component(model="NIC_Basic", name="if_forward_11").get_interfaces()[0]
-    ifaceforward22 = forward2.add_component(model="NIC_Basic", name="if_forward_22").get_interfaces()[0]
-    ifacenode1 = node1.add_component(model="NIC_Basic", name="if_node_1").get_interfaces()[0]
-    ifacenode2 = node2.add_component(model="NIC_Basic", name="if_node_2").get_interfaces()[0]
-    net1 = slice.add_l3network(name='net_1', type='L2Bridge', interfaces=[ifaceforward1, ifaceforward2])
-    net2 = slice.add_l3network(name='net_2', type='L2Bridge', interfaces=[ifacenode1, ifaceforward11])
-    net3 = slice.add_l3network(name='net_3', type='L2Bridge', interfaces=[ifacenode2, ifaceforward22])
-
-    slice.submit()
+    if two_node:
+        slice = fablib.new_slice(name=SLICENAME)
+        node1 = slice.add_node(name="node1", site=SITE, cores=6, ram=80, disk=60, image='default_ubuntu_20')
+        node2 = slice.add_node(name="node2", site=SITE, cores=6, ram=80, disk=60, image='default_ubuntu_20')
+        ifacenode1 = node1.add_component(model="NIC_Basic", name="if_node_1").get_interfaces()[0]
+        ifacenode2 = node2.add_component(model="NIC_Basic", name="if_node_2").get_interfaces()[0]
+        net1 = slice.add_l3network(name='net_1', type='L2Bridge', interfaces=[ifacenode1, ifacenode2])
+        slice.submit()
+    else:
+        slice = fablib.new_slice(name=SLICENAME)
+        node1 = slice.add_node(name="node1", site=SITE, cores=6, ram=80, disk=60, image='default_ubuntu_20')
+        node2 = slice.add_node(name="node2", site=SITE, cores=6, ram=80, disk=60, image='default_ubuntu_20')
+        forward1 = slice.add_node(name="forward1", site=SITE, cores=6, ram=80, disk=60, image='default_ubuntu_20')
+        forward2 = slice.add_node(name="forward2", site=SITE, cores=6, ram=80, disk=60, image='default_ubuntu_20')
+        ifaceforward1 = forward1.add_component(model="NIC_Basic", name="if_forward_1").get_interfaces()[0]
+        ifaceforward2 = forward2.add_component(model="NIC_Basic", name="if_forward_2").get_interfaces()[0]
+        ifaceforward11 = forward1.add_component(model="NIC_Basic", name="if_forward_11").get_interfaces()[0]
+        ifaceforward22 = forward2.add_component(model="NIC_Basic", name="if_forward_22").get_interfaces()[0]
+        ifacenode1 = node1.add_component(model="NIC_Basic", name="if_node_1").get_interfaces()[0]
+        ifacenode2 = node2.add_component(model="NIC_Basic", name="if_node_2").get_interfaces()[0]
+        net1 = slice.add_l3network(name='net_1', type='L2Bridge', interfaces=[ifaceforward1, ifaceforward2])
+        net2 = slice.add_l3network(name='net_2', type='L2Bridge', interfaces=[ifacenode1, ifaceforward11])
+        net3 = slice.add_l3network(name='net_3', type='L2Bridge', interfaces=[ifacenode2, ifaceforward22])
+        slice.submit()
 ```
 :::
 
@@ -123,7 +131,12 @@ for node in slice.get_nodes():
 
 ::: {.cell .markdown}
 ## Phase I - Install NDN-DPDK
-Add information about the phase I setup
+Installing the base [NDN-DPDK](https://github.com/usnistgov/ndn-dpdk) package is done automatically using the code block below.
+This will set the terminal prefix to the node's name, install the NVIDIA MLX OFED drivers, clone the [NDN-DPDK](https://github.com/usnistgov/ndn-dpdk) and [DPDK](https://github.com/DPDK/dpdk) GitHub repositories, run the dependency installation, install the [NDN-DPDK](https://github.com/usnistgov/ndn-dpdk) package, and then configure hugepages to use 64 1GB hugepages (must have <80GB RAM on node).
+All nodes in the slice reserved will have this installed. 
+The install will be validated and a Success/Failure message will send per node.
+This code block may take about an hour to run successfully, and may appear idle due to a triggered sleep.
+Do not start other code blocks until a Success/Failure message is given.
 :::
 
 ::: {.cell .code}
@@ -147,14 +160,12 @@ def phase1(name: str):
         for command in commands:
             print(f"Executing {command} on {name}")
             stdout, stderr = node.execute(command)
-        print(f"Finished: {name}")
         if stdout.startswith("ndndpdk-ctrl version"):
-            print(f"Success on {name}")
+            print(f"Success on {name} at {datetime.datetime.now()}")
         else:
-            print(f"Failure on {name}")
-        print(f"{name} done at {datetime.datetime.now()}")
+            print(f"Failure on {name} at {datetime.datetime.now()}")
     except Exception:
-        print(f"Failed: {name}")
+        print(f"Failed: {name} at {datetime.datetime.now()}")
 
 print(f"Starting: {datetime.datetime.now()}")
 for node in slice.get_nodes():
@@ -164,7 +175,18 @@ for node in slice.get_nodes():
 
 ::: {.cell .markdown}
 ## Phase II - Forwarder
-Add information about the phase II setup
+Activating the Forwarder can be done manually or by using the code block below.
+Manually, the commands are as follows:
+```
+echo {} | sudo ndndpdk-ctrl activate-forwarder
+sudo ndndpdk-ctrl create-eth-port --pci <INTERFACE INDEX>
+sudo ndndpdk-ctrl create-ether-face --local <LOCAL INTERFACE MAC> --remote <OTHER NODE'S INTERFACE MAC>
+```
+This must be done on all nodes that are to be set up as forwarders, and the ether-face must be created for every interface that is to be used.
+The code below will activate these commands for all nodes starting in "forward."
+The ether-face will only be made if it is using a 2 node setup, since this indicates only one ether-face connected to itself on each of the 2 nodes.
+
+The installation can be tested post install using *NDNping*, described in the documentation on the [NDN-DPDK GitHub](https://github.com/usnistgov/ndn-dpdk/blob/main/docs/forwarder.md).
 :::
 
 ::: {.cell .code}
@@ -172,8 +194,8 @@ Add information about the phase II setup
 def phase2(name: str):
     commands = [
         "sudo apt install net-tools",
-        "sudo ndndpdk-ctrl systemd restart", "echo {} > empty.json",
-        "sudo ndndpdk-ctrl activate-forwarder < empty.json"
+        "sudo ndndpdk-ctrl systemd restart",
+        "echo {} | sudo ndndpdk-ctrl activate-forwarder"
     ]
     node = slice.get_node(name=name)
     try:
@@ -224,12 +246,78 @@ for node_thread in thread_list:
 for node_thread in thread_list:
     node_thread.join()
 print(json.dumps(global_interfaces, indent=4))
+if two_node:
+    try:
+        nodes = slice.get_nodes()
+        node1mac = global_interfaces[nodes[0].get_name()][0]["macAddr"]
+        node2mac = global_interfaces[nodes[1].get_name()][0]["macAddr"]
+        nodes[0].execute(f"sudo ndndpdk-ctrl create-ether-face --local {node1mac} --remote {node2mac}")
+        nodes[1].execute(f"sudo ndndpdk-ctrl create-ether-face --local {node2mac} --remote {node1mac}")
+    except Exception as e:
+        print(f"Failed with error {e.message}")
 ```
 :::
 
 ::: {.cell .markdown}
 ## Phase III - Traffic Generator
-Add information about the phase III setup
+Activating the Traffic Generator can be done manually or by using the code block below.
+Manually, the commands are as follows for the producer node:
+```
+echo {} | sudo ndndpdk-ctrl activate-trafficgen
+sudo ndndpdk-ctrl create-eth-port --pci <INTERFACE INDEX>
+jq -n '{
+  face: {
+    scheme: "ether",
+    local: "<LOCAL INTERFACE MAC>",
+    remote: "<OTHER NODE'S INTERFACE MAC>",
+    mtu: 1500
+  },
+  producer: {
+    patterns: [
+      {
+        prefix: "/V",
+        replies: [
+          {
+            suffix: "/V",
+            payloadLen: 8000,
+            weight: 6
+          }
+        ]
+      }
+    ]
+  }
+}' | ndndpdk-ctrl start-trafficgen
+
+```
+And for the consume node:
+```
+echo {} | sudo ndndpdk-ctrl activate-trafficgen
+sudo ndndpdk-ctrl create-eth-port --pci <INTERFACE INDEX>
+jq -n '{
+  face: {
+    scheme: "ether",
+    local: "<LOCAL INTERFACE MAC>",
+    remote: "<OTHER NODE'S INTERFACE MAC>",
+    mtu: 1500
+  },
+  consumer: {
+    patterns: [
+      {
+        weight: 5,
+        prefix: "/V",
+        canBePrefix: true
+      }
+    ],
+    interval: "1ms"
+  }
+}' | ndndpdk-ctrl start-trafficgen
+
+```
+Once the two nodes have been started, the generators can be verified using the following:
+```
+sudo ndndpdk-ctrl get-face --id <INTERFACE ID> --cnt
+```
+If the transmitted/received matches the other node, it is running successfully.
 :::
 
 ::: {.cell .markdown}
