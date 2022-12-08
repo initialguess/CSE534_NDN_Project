@@ -4,3 +4,5 @@
 test.sh
 ssh_cmds.sh
 update.sh
+**/.DS_Store
+.DS_Store
