@@ -175,7 +175,7 @@ for node in slice.get_nodes():
 
 ::: {.cell .markdown}
 ## Phase II - Forwarder
-Activating the Forwarder can be done manually or by using the code block below.
+Activating the [Forwarder](https://github.com/usnistgov/ndn-dpdk/blob/main/docs/forwarder.md) can be done manually or by using the code block below.
 Manually, the commands are as follows:
 ```
 echo {} | sudo ndndpdk-ctrl activate-forwarder
@@ -260,7 +260,7 @@ if two_node:
 
 ::: {.cell .markdown}
 ## Phase III - Traffic Generator
-Activating the Traffic Generator can be done manually or by using the code block below.
+Activating the [Traffic Generator](https://github.com/usnistgov/ndn-dpdk/blob/main/docs/trafficgen.md) can be done manually or by using the code block below (coming soon).
 Manually, the commands are as follows for the producer node:
 ```
 echo {} | sudo ndndpdk-ctrl activate-trafficgen
@@ -322,13 +322,61 @@ If the transmitted/received matches the other node, it is running successfully.
 
 ::: {.cell .markdown}
 ## Phase IV - File Server
-Add information about the phase IV setup
+Activating the [File Server](https://github.com/usnistgov/ndn-dpdk/blob/main/docs/fileserver.md) can be done manually or by using the code block below (coming soon)
+Manually, the commands are as follows for the server node:
+```
+echo {} | sudo ndndpdk-ctrl activate-forwarder
+sudo ndndpdk-ctrl create-eth-port --pci <INTERFACE INDEX>
+FACEID=$(jq -n '{
+  scheme: "memif",
+  socketName: "/run/ndn/fileserver.sock",
+  id: 0,
+  role: "server",
+  dataroom: 1500
+}' | ndndpdk-ctrl --gqlserver http://127.0.0.1:3030 create-face | tee /dev/stderr | jq -r .id)
+ndndpdk-ctrl --gqlserver http://127.0.0.1:3030 insert-fib --name /fileserver --nh $FACEID
+sudo ndndpdk-ctrl --gqlserver http://127.0.0.1:3031 systemd start
+cp -r ndn-dpdk/sample/activate activate
+cd activate && corepack pnpm install
+# Edit the fileserver-args.ts to reflect MTU of 1500 instead 9000 for NVIDIA network interfaces
+corepack pnpm -s start fileserver-args.ts | ndndpdk-ctrl --gqlserver http://127.0.0.1:3031 activate-fileserver
+echo {} | sudo ndndpdk-ctrl --gqlserver http://127.0.0.1:3031 activate-fileserver
+```
+And for the client node:
+```
+echo {} | sudo ndndpdk-ctrl activate-forwarder
+sudo ndndpdk-ctrl create-eth-port --pci <INTERFACE INDEX>
+FACEID=$(jq -n '{
+  scheme: "memif",
+  socketName: "/run/ndn/fileserver.sock",
+  id: 0,
+  role: "client",
+  dataroom: 1500
+}' | ndndpdk-ctrl --gqlserver http://127.0.0.1:3030 create-face | tee /dev/stderr | jq -r .id)
+ndndpdk-ctrl --gqlserver http://127.0.0.1:3030 insert-fib --name /fileserver --nh $FACEID
+sudo ndndpdk-ctrl --gqlserver http://127.0.0.1:3031 systemd start
+cp -r ndn-dpdk/sample/activate activate
+cd activate && corepack pnpm install
+# Edit the fileserver-args.ts to reflect MTU of 1500 instead 9000 for NVIDIA network interfaces
+corepack pnpm -s start fileserver-args.ts | ndndpdk-ctrl --gqlserver http://127.0.0.1:3031 activate-fileserver
+echo {} | sudo ndndpdk-ctrl --gqlserver http://127.0.0.1:3031 activate-fileserver
+```
+Once the two nodes have been started, the file server can be verified using *ndncat* in the following manner:
+```
+export NDNTS_UPLINK=ndndpdk-udp:
+export NDNTS_NDNDPDK_GQLSERVER=http://127.0.0.1:3030
+alias ndncat='npx -y -p https://ndnts-nightly.ndn.today/cat.tgz ndncat'
+ndncat get-segmented --ver=rdr /fileserver/usr-local-bin/ndndpdk-svc > /tmp/ndndpdk-svc.retrieved
+sha256sum /usr/local/bin/ndndpdk-svc /tmp/ndndpdk-svc.retrieved
+ndncat file-client /fileserver/usr-local-bin /tmp/usr-local-bin-retrieved
+```
+If the file transfers successfully, the file server has been activated.
 :::
 
 
 ::: {.cell .markdown}
 ## Delete Resources
-Add information about the phase I setup
+Once you are done running the experiment, please delete the FABRIC resources using the following code block.
 :::
 
 ::: {.cell .code}
